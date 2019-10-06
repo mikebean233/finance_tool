@@ -1,0 +1,18 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+   
+   
+   
+   
+   <changeSet id="categories" author="author" runOnChange="true">
+    <sqlFile dbms="mssql" path="tables/categories.sql" relativeToChangelogFile="true" splitStatements="true"/>
+   </changeSet>
+   <changeSet id="transactions" author="author" runOnChange="true">
+    <sqlFile dbms="mssql" path="tables/transactions.sql" relativeToChangelogFile="true" splitStatements="true"/>
+   </changeSet>
+
+</databaseChangeLog>
