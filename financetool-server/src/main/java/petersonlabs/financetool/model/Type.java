@@ -6,6 +6,8 @@ public class Type {
 	private int id;
 	private String name;
 
+	public static final Type UNKNOWN = new Type(1, "UNKNOWN");
+
 	public Type(int id, String name) {
 		this.id = id;
 		this.name = name;

@@ -9,6 +9,8 @@ import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.swagger.v3.oas.models.info.Info;
 import petersonlabs.financetool.SystemProperties;
 
+import java.text.SimpleDateFormat;
+
 public class JavalinModule extends AbstractModule {
 
 	@Override
@@ -33,5 +35,6 @@ public class JavalinModule extends AbstractModule {
 			.start(SystemProperties.WS_PORT);
 
 		bind(Javalin.class).toInstance(javalin);
+		bind(SimpleDateFormat.class).toInstance(new SimpleDateFormat(SystemProperties.DATE_FORMAT));
 	}
 }

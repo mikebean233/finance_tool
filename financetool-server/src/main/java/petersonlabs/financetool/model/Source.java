@@ -6,6 +6,8 @@ public class Source {
 	private int id;
 	private String name;
 
+	public static final Source UNKNOWN = new Source(1, "UNKNOWN");
+
 	public Source(int id, String name) {
 		this.id = id;
 		this.name = name;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Transaction {
 	private Date date;
@@ -45,5 +46,47 @@ public class Transaction {
 		{
 			return "{ error: \"ERROR BUILDING TRANSACTION JSON\"}";
 		}
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public String getVendor() {
+		return vendor;
+	}
+
+	public float getAmount() {
+		return amount;
+	}
+
+	public Source getSource() {
+		return source;
+	}
+
+	public Category getCategory() {
+		return category;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Transaction that = (Transaction) o;
+		return Float.compare(that.amount, amount) == 0 &&
+			date.equals(that.date) &&
+			vendor.equals(that.vendor) &&
+			source.equals(that.source) &&
+			category.equals(that.category) &&
+			type.equals(that.type);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(date, vendor, amount, source, category, type);
 	}
 }

@@ -7,6 +7,8 @@ public class Category {
 	private String name;
 	private String description;
 
+	public static final Category UNKNOWN = new Category(1, "UNKNOWN", "unknown category");
+
 	public Category(int id, String name, String description) {
 		this.id = id;
 		this.name = name;
