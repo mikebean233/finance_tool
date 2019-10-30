@@ -2,7 +2,7 @@ package petersonlabs.financetool;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import petersonlabs.financetool.api.TransactionResource;
+import petersonlabs.financetool.api.*;
 import petersonlabs.financetool.injection.DatabaseModule;
 import petersonlabs.financetool.injection.JavalinModule;
 
@@ -15,5 +15,9 @@ public class Main {
 			);
 
 		injector.getInstance(TransactionResource.class).setup();
+		injector.getInstance(CategoryResource.class).setup();
+		injector.getInstance(CategoryMatcherResource.class).setup();
+		injector.getInstance(TypeResource.class).setup();
+		injector.getInstance(SourceResource.class).setup();
 	}
 }

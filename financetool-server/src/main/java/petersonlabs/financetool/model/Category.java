@@ -1,13 +1,20 @@
 package petersonlabs.financetool.model;
 
+import com.google.common.collect.ImmutableList;
+import org.intellij.lang.annotations.Identifier;
+
 import java.util.Objects;
 
-public class Category {
+public class Category implements Identifiable {
 	private int id;
 	private String name;
 	private String description;
 
 	public static final Category UNKNOWN = new Category(1, "UNKNOWN", "unknown category");
+	public static final DatabaseSchema DB_SCHEMA = new DatabaseSchema(
+		"categories",
+		ImmutableList.of("name", "description"),
+		true);
 
 	public Category(int id, String name, String description) {
 		this.id = id;
@@ -35,6 +42,7 @@ public class Category {
 		return Objects.hash(id, name, description);
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}

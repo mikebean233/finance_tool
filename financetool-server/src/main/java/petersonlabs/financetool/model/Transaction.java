@@ -1,7 +1,10 @@
 package petersonlabs.financetool.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -14,6 +17,11 @@ public class Transaction {
 	private Source source;
 	private Category category;
 	private Type type;
+
+	public static final DatabaseSchema DB_SCHEMA = new DatabaseSchema(
+		"transactions",
+		ImmutableList.of("date", "vendor", "amount", "source", "category", "type"),
+		false);
 
 	public Transaction(
 		Date date,

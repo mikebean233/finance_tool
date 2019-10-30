@@ -1,12 +1,19 @@
 package petersonlabs.financetool.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.Objects;
 
-public class Type {
+public class Type implements Identifiable{
 	private int id;
 	private String name;
 
 	public static final Type UNKNOWN = new Type(1, "UNKNOWN");
+	public static final DatabaseSchema DB_SCHEMA = new DatabaseSchema(
+		"types",
+		ImmutableList.of("name"),
+		true);
+
 
 	public Type(int id, String name) {
 		this.id = id;
@@ -32,6 +39,7 @@ public class Type {
 		return Objects.hash(id, name);
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}

@@ -20,7 +20,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static petersonlabs.financetool.api.Resource.ok;
 
 @Singleton
 public class TransactionResource {
@@ -38,57 +41,22 @@ public class TransactionResource {
 	public void setup()
 	{
 		javalin.post("/api/transactions", this::upsertTransactions);
-		javalin.get("/api/categories", this::getCategories);
-		javalin.get("/api/sources", this::getSources);
-		javalin.post("/api/sources", this::postSources);
+		javalin.get("/api/transactions", this::getTransactions);
 	}
 
 	@OpenApi(
-		summary = "add sources",
-		description = "adds a list of sources in CSV format",
-		requestBody = @OpenApiRequestBody(content = @OpenApiContent(type = "text/csv"), required = true, description = "csv list of new soruces"),
+		summary = "get transactions",
+		description = "gets the transactions",
 		responses = {
 			@OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json")),
 			@OpenApiResponse(status = "500")
 		},
-		path = "/api/sources",
-		method = HttpMethod.POST
-	)
-	private void postSources(Context context) throws SQLException
-	{
-		dao.insertSources(Arrays.stream(context.body().split(",")).collect(Collectors.toSet()));
-		ok(context);
-	}
-
-
-	@OpenApi(
-		summary = "get sources",
-		description = "gets the sources that transactions originate from",
-		responses = {
-			@OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json")),
-			@OpenApiResponse(status = "500")
-		},
-		path = "/api/sources",
+		path = "/api/transactions",
 		method = HttpMethod.GET
 	)
- 	private void getSources(Context context) throws SQLException
+	public void getTransactions(Context context) throws SQLException
 	{
-		context.json(dao.getSources());
-	}
-
-	@OpenApi(
-		summary = "get categories",
-		description = "gets the categories that the transactions fall in to",
-		responses = {
-			@OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json")),
-			@OpenApiResponse(status = "500")
-		},
-		path = "/api/categories",
-		method = HttpMethod.GET
-	)
-	private void getCategories(Context context) throws SQLException
-	{
-		context.json(dao.getCategories());
+		context.json(dao.getTransactions());
 	}
 
 	@OpenApi(
@@ -119,8 +87,10 @@ public class TransactionResource {
 
 			ImmutableSet.Builder<Transaction> transactionBuilder = ImmutableSet.builder();
 
-			Set<Source> sources = dao.getSources();
-			Map<String, Type> typeNameMap = dao.getTypes().stream().collect(Collectors.toMap(Type::getName, entry -> entry));
+			Set<Source> sources = ImmutableSet.copyOf(dao.getSources().values());
+
+			Map<String, Type> typeNameMap = ((Collection<Type>)dao.getTypes().values()).stream()
+				.collect(Collectors.toMap(Type::getName, Function.identity()));
 
 			while(reader.ready()){
 				String thisLine = reader.readLine().replace("\"", "");
@@ -193,11 +163,5 @@ public class TransactionResource {
 
 		}
 		return new Transaction(date, vendor, amount, source, category, type);
-	}
-
-
-	private void ok(Context context) {
-		context.status(200);
-		context.result("OK");
 	}
 }

@@ -1,12 +1,18 @@
 package petersonlabs.financetool.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.Objects;
 
-public class Source {
+public class Source implements Identifiable {
 	private int id;
 	private String name;
 
 	public static final Source UNKNOWN = new Source(1, "UNKNOWN");
+	public static final DatabaseSchema DB_SCHEMA = new DatabaseSchema(
+		"sources",
+		ImmutableList.of("name"),
+		true);
 
 	public Source(int id, String name) {
 		this.id = id;
@@ -32,6 +38,7 @@ public class Source {
 		return Objects.hash(id, name);
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}

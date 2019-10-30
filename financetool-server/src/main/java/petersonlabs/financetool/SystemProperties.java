@@ -12,9 +12,9 @@ public final class SystemProperties {
 
 	// JAVALIN
 	public static final int WS_PORT         = getInteger("WS_PORT", 8080);
+	public static final String WEB_ROOT     = getString("WEB_ROOT", "/srv/www/finance-tool");
 
 	public static final String DATE_FORMAT  = getString("DATE_FORMAT", "MM/dd/yy");
-
 	private static String getString(String name, String defaultValue) {
 		return System.getProperty(name, defaultValue);
 	}
