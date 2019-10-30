@@ -16,5 +16,8 @@
     <changeSet id="transactions" author="author" runOnChange="true">
         <sqlFile dbms="mssql" path="sql/tables/transactions.sql" relativeToChangelogFile="true" splitStatements="true"/>
     </changeSet>
+    <changeSet id="category_matchers" author="author" runOnChange="true">
+        <sqlFile dbms="mssql" path="sql/tables/category_matchers.sql" relativeToChangelogFile="true" splitStatements="true"/>
+    </changeSet>
 
 </databaseChangeLog>
