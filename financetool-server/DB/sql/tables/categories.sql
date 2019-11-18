@@ -5,7 +5,7 @@ IF NOT EXISTS(
           AND T.TABLE_SCHEMA = 'dbo')
   BEGIN
     CREATE TABLE dbo.categories (
-      id          INT PRIMARY KEY IDENTITY (1, 1),
+      id          INT IDENTITY (1, 1),
       name        VARCHAR(100),
       description VARCHAR(500)
     )
