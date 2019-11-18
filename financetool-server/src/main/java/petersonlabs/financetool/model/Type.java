@@ -1,5 +1,7 @@
 package petersonlabs.financetool.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Objects;
@@ -14,10 +16,12 @@ public class Type implements Identifiable{
 		ImmutableList.of("name"),
 		true);
 
-
-	public Type(int id, String name) {
-		this.id = id;
-		this.name = name;
+	@JsonCreator
+	public Type(
+		@JsonProperty(value = "id", defaultValue = "-1") Integer id,
+		@JsonProperty(value = "name", defaultValue = "") String name) {
+		this.id = Objects.isNull(id) ? -1 : id;
+		this.name = Objects.isNull(name) ? "" : name;
 	}
 
 	@Override

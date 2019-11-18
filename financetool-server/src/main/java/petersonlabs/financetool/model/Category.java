@@ -1,7 +1,9 @@
 package petersonlabs.financetool.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import org.intellij.lang.annotations.Identifier;
+import petersonlabs.financetool.Util;
 
 import java.util.Objects;
 
@@ -16,15 +18,19 @@ public class Category implements Identifiable {
 		ImmutableList.of("name", "description"),
 		true);
 
-	public Category(int id, String name, String description) {
-		this.id = id;
-		this.name = name;
-		this.description = description;
+	@JsonCreator
+	public Category(
+		@JsonProperty(value = "id", defaultValue = "-1") Integer id,
+		@JsonProperty(value = "name", defaultValue = "") String name,
+		@JsonProperty(value = "description", defaultValue = "") String description) {
+		this.id = Objects.isNull(id) ? -1 : id;
+		this.name = Objects.isNull(name) ? "" : name;
+		this.description = Objects.isNull(description) ? "" : description;
 	}
 
 	@Override
 	public String toString() {
-		return name;
+		return Util.serialize(this);
 	}
 
 	@Override

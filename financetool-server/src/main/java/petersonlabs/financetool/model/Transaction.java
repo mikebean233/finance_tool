@@ -1,13 +1,10 @@
 package petersonlabs.financetool.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 
+import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class Transaction {
@@ -17,43 +14,38 @@ public class Transaction {
 	private Source source;
 	private Category category;
 	private Type type;
+	private boolean manualCategory;
+
+	public static final Transaction UNKNOWN = new Transaction(
+		Date.from(Instant.EPOCH),
+		"",
+		Float.NEGATIVE_INFINITY,
+		Source.UNKNOWN,
+		Category.UNKNOWN,
+		Type.UNKNOWN,
+		false
+	);
 
 	public static final DatabaseSchema DB_SCHEMA = new DatabaseSchema(
 		"transactions",
-		ImmutableList.of("date", "vendor", "amount", "source", "category", "type"),
+		ImmutableList.of("date", "vendor", "amount", "source", "category", "type", "manual_category"),
 		false);
 
 	public Transaction(
-		Date date,
-		String vendor,
-		float amount,
-		Source source,
-		Category category,
-		Type type){
+		@JsonProperty(value = "date") Date date,
+		@JsonProperty(value = "vendor") String vendor,
+		@JsonProperty(value = "amount") float amount,
+		@JsonProperty(value = "source") Source source,
+		@JsonProperty(value = "category") Category category,
+		@JsonProperty(value = "type") Type type,
+		@JsonProperty(value = "manualCategory") boolean manualCategory){
 		this.date = date;
 		this.vendor = vendor;
 		this.amount = amount;
 		this.source = source;
 		this.category = category;
 		this.type = type;
-	}
-
-	@Override
-	public String toString()
-	{
-		HashMap<String, String> outMap = new HashMap<>();
-		outMap.put("date", date.toString());
-		outMap.put("vendor", vendor);
-		outMap.put("amount", Float.toString(amount));
-		outMap.put("source", source.toString());
-		outMap.put("category", source.toString());
-		outMap.put("type", type.toString());
-		try {
-			return new ObjectMapper().writeValueAsString(outMap);
-		} catch(JsonProcessingException ex)
-		{
-			return "{ error: \"ERROR BUILDING TRANSACTION JSON\"}";
-		}
+		this.manualCategory = manualCategory;
 	}
 
 	public Date getDate() {
@@ -80,6 +72,8 @@ public class Transaction {
 		return type;
 	}
 
+	public boolean getManualCategory() {return manualCategory;}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -89,12 +83,11 @@ public class Transaction {
 			date.equals(that.date) &&
 			vendor.equals(that.vendor) &&
 			source.equals(that.source) &&
-			category.equals(that.category) &&
 			type.equals(that.type);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(date, vendor, amount, source, category, type);
+		return Objects.hash(date, vendor, amount, source, type);
 	}
 }

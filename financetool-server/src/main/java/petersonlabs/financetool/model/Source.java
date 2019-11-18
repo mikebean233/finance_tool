@@ -1,5 +1,7 @@
 package petersonlabs.financetool.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Objects;
@@ -13,10 +15,12 @@ public class Source implements Identifiable {
 		"sources",
 		ImmutableList.of("name"),
 		true);
-
-	public Source(int id, String name) {
-		this.id = id;
-		this.name = name;
+	@JsonCreator
+	public Source(
+		@JsonProperty(value = "id", defaultValue = "-1") Integer id,
+		@JsonProperty(value = "name", defaultValue = "") String name){
+		this.id = Objects.isNull(id) ? -1 : id;
+		this.name = Objects.isNull(name) ? "" : name;
 	}
 
 	@Override
