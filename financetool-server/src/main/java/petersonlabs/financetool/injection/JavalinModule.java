@@ -42,6 +42,5 @@ public class JavalinModule extends AbstractModule {
 			.start(SystemProperties.WS_PORT);
 
 		bind(Javalin.class).toInstance(javalin);
-		bind(SimpleDateFormat.class).toInstance(new SimpleDateFormat(SystemProperties.DATE_FORMAT));
 	}
 }
