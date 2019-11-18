@@ -27,10 +27,10 @@ public class SourceResource {
 
 	public void setup() {
 		javalin.get("/api/sources", this::getSources);
-		javalin.post("/api/sources", this::postSources);
 	}
 
 	@OpenApi(
+		tags = {"Source"},
 		summary = "get sources",
 		description = "gets the sources that transactions originate from",
 		responses = {
@@ -44,22 +44,4 @@ public class SourceResource {
 	{
 		context.json(dao.getSources().values());
 	}
-
-	@OpenApi(
-		summary = "add sources",
-		description = "adds a list of sources in CSV format",
-		requestBody = @OpenApiRequestBody(content = @OpenApiContent(type = "text/csv"), required = true, description = "csv list of new soruces"),
-		responses = {
-			@OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json")),
-			@OpenApiResponse(status = "500")
-		},
-		path = "/api/sources",
-		method = HttpMethod.POST
-	)
-	private void postSources(Context context) throws SQLException
-	{
-		dao.insertSources(Arrays.stream(context.body().split(",")).collect(Collectors.toSet()));
-		ok(context);
-	}
-
 }

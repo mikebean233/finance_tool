@@ -1,7 +1,5 @@
 package petersonlabs.financetool.dao;
 
-
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -10,58 +8,19 @@ import petersonlabs.financetool.Util;
 import petersonlabs.financetool.model.*;
 
 import javax.sql.DataSource;
-import java.lang.annotation.Annotation;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static petersonlabs.financetool.Util.doWithLock;
+import static petersonlabs.financetool.dao.SqlStrings.*;
 
 @Singleton
 public class Dao<T> {
 	private DataSource dataSource;
-
-	private static final DatabaseSchema CATEGORIES_SCHEMA   = Category.DB_SCHEMA;
-	private static final DatabaseSchema SOURCES_SCHEMA      = Source.DB_SCHEMA;
-	private static final DatabaseSchema TYPES_SCHEMA        = Type.DB_SCHEMA;
-	private static final DatabaseSchema CAT_MATCHERS_SCHEMA = CategoryMatcher.DB_SCHEMA;
-	private static final DatabaseSchema TRANSACTIONS_SCHEMA = Transaction.DB_SCHEMA;
-
-	private static final String SELECT_CATEGORIES   = buildSelectString(CATEGORIES_SCHEMA);
-	private static final String SELECT_SOURCES      = buildSelectString(SOURCES_SCHEMA);
-	private static final String SELECT_TYPES        = buildSelectString(TYPES_SCHEMA);
-	private static final String SELECT_TRANSACTIONS = buildSelectString(TRANSACTIONS_SCHEMA);
-	private static final String SELECT_CAT_MATCHERS = buildSelectString(CAT_MATCHERS_SCHEMA);
-
-	private final String INSERT_CATEGORY     = buildInsertString(CATEGORIES_SCHEMA);
-	private final String INSERT_SOURCE       = buildInsertString(SOURCES_SCHEMA);
-	private final String INSERT_TYPE         = buildInsertString(TYPES_SCHEMA);
-	private final String INSERT_CAT_MATCHERS = buildInsertString(CATEGORIES_SCHEMA);
-	private final String INSERT_TRANSACTION  = """
-		IF NOT EXISTS (
-			SELECT 1
-			FROM dbo.transactions
-			WHERE date = ?
-				AND vendor = ?
-				AND amount = ?
-				AND source = ?
-				AND type = ?)
-		BEGIN
-			INSERT INTO dbo.transactions (date, vendor, amount, category, source, type)
-			VALUES (?,?,?,?,?,?)
-		END
-	""";
-
-	private final String DELETE_CATEGORY     = buildDeleteString(CATEGORIES_SCHEMA);
-	private final String DELETE_SOURCE       = buildDeleteString(SOURCES_SCHEMA);
-	private final String DELETE_TYPE         = buildDeleteString(TYPES_SCHEMA);
-	private final String DELETE_CAT_MATCHERS = buildDeleteString(CATEGORIES_SCHEMA);
 
 	private final ReentrantReadWriteLock categoriesLock       = new ReentrantReadWriteLock();
 	private final ReentrantReadWriteLock sourcesLock          = new ReentrantReadWriteLock();
@@ -213,6 +172,7 @@ public class Dao<T> {
 			preparedStatement.setString(3, category.getName());
 			preparedStatement.setString(4, category.getDescription());
 			preparedStatement.execute();
+			preparedStatement.close();
 			rebuildCategoriesCache();
 		});
 	}
@@ -228,6 +188,7 @@ public class Dao<T> {
 			preparedStatement.setString(1, type.getName());
 			preparedStatement.setString(2, type.getName());
 			preparedStatement.execute();
+			preparedStatement.close();
 			rebuildCategoriesCache();
 		});
 	}
@@ -243,6 +204,7 @@ public class Dao<T> {
 			preparedStatement.setString(1, sourceName);
 			preparedStatement.setString(2, sourceName);
 			preparedStatement.execute();
+			preparedStatement.close();
 			rebuildSourcesCache();
 		});
 	}
@@ -253,14 +215,15 @@ public class Dao<T> {
 	}
 
 	public void insertCategoryMatcher(CategoryMatcher categoryMatcher) throws SQLException {
-		doWithLock(categoriesLock.writeLock(), () -> {
+		doWithLock(categoryMatchersLock.writeLock(), () -> {
 			PreparedStatement preparedStatement = this.dataSource.getConnection().prepareStatement(INSERT_CAT_MATCHERS);
 			preparedStatement.setString(1, categoryMatcher.getText());
 			preparedStatement.setInt(2, categoryMatcher.getCategory().getId());
 			preparedStatement.setString(3, categoryMatcher.getText());
 			preparedStatement.setInt(4, categoryMatcher.getCategory().getId());
 			preparedStatement.execute();
-			rebuildSourcesCache();
+			preparedStatement.close();
+			rebuildCategoryMatchersCache();
 		});
 	}
 
@@ -284,6 +247,7 @@ public class Dao<T> {
 			preparedStatement.setInt(10, transaction.getSource().getId());
 			preparedStatement.setInt(11, transaction.getType().getId());
 			preparedStatement.execute();
+			preparedStatement.close();
 			transactions.add(transaction);
 		});
 	}
@@ -293,29 +257,65 @@ public class Dao<T> {
 	}
 
 	/*************************** Deletes ********************************/
-	private <T extends Identifiable> void delete(Lock lock, String sql, Map<Integer, T> cache, T thing) throws SQLException{
+	private <T extends Identifiable> void delete(Lock lock, String sql, Map<Integer, T> cache, Integer id) throws SQLException{
 		doWithLock(lock, () -> {
 			PreparedStatement preparedStatement = this.dataSource.getConnection().prepareStatement(sql);
-			preparedStatement.setInt(1, thing.getId());
+			preparedStatement.setInt(1, id);
 			preparedStatement.execute();
-			cache.remove(thing.getId());
+			cache.remove(id);
+			preparedStatement.closeOnCompletion();
 		});
 	}
 
-	public void deleteCategory(Category category) throws SQLException {
-		delete(categoriesLock.writeLock(), DELETE_CATEGORY, categories, category);
+	public void deleteCategory(Integer id) throws SQLException {
+		delete(categoriesLock.writeLock(), DELETE_CATEGORY, categories, id);
 	}
 
-	public void deleteSource(Source source) throws SQLException {
-		delete(sourcesLock.writeLock(), DELETE_SOURCE, sources, source);
+	public void deleteSource(Integer id) throws SQLException {
+		delete(sourcesLock.writeLock(), DELETE_SOURCE, sources, id);
 	}
 
-	public void deleteType(Type type) throws SQLException {
-		delete(typesLock.writeLock(), DELETE_TYPE, types, type);
+	public void deleteType(Integer id) throws SQLException {
+		delete(typesLock.writeLock(), DELETE_TYPE, types, id);
 	}
 
-	public void deleteCategoryMatcher(CategoryMatcher catMatcher) throws SQLException {
-		delete(categoryMatchersLock.writeLock(), DELETE_CAT_MATCHERS, catMatchers, catMatcher);
+	public void deleteCategoryMatcher(Integer id) throws SQLException {
+		delete(categoryMatchersLock.writeLock(), DELETE_CAT_MATCHERS, catMatchers, id);
+	}
+
+	/*************************** update *********************/
+
+	public void updateTransactions(Set<Transaction> transactions) throws SQLException {
+		doWithLock(transactionsLock.writeLock(), () -> {
+			for(Transaction transaction : transactions)
+				updateTransaction(transaction);
+
+			rebuildTransactionsCache();
+		});
+	}
+
+	public void matchCategories() throws SQLException {
+		doWithLock(transactionsLock.writeLock(), () -> {
+			PreparedStatement preparedStatement = this.dataSource.getConnection().prepareStatement(MATCH_CATEGORIES);
+			preparedStatement.execute();
+			preparedStatement.close();
+		});
+	}
+
+	public void updateTransaction(Transaction transaction) throws SQLException {
+		doWithLock(transactionsLock.writeLock(), () -> {
+			PreparedStatement preparedStatement = this.dataSource.getConnection().prepareStatement(UPDATE_TRANSACTION);
+			preparedStatement.setInt(1, transaction.getCategory().getId());
+			preparedStatement.setBoolean(2, transaction.getManualCategory());
+
+			preparedStatement.setDate(3, convertToSqlDate(transaction.getDate()));
+			preparedStatement.setString(4, transaction.getVendor());
+			preparedStatement.setFloat(5, transaction.getAmount());
+			preparedStatement.setInt(6, transaction.getSource().getId());
+			preparedStatement.setInt(7, transaction.getType().getId());
+			preparedStatement.execute();
+			preparedStatement.close();
+		});
 	}
 
 	/*************************** ResultSet readers *********************/
@@ -358,30 +358,8 @@ public class Dao<T> {
 			resultSet.getFloat("amount"),
 			getSourceFromId(resultSet.getInt("source")),
 			getCategoryFromId(resultSet.getInt("category")),
-			getTypeFromId(resultSet.getInt("type"))
+			getTypeFromId(resultSet.getInt("type")),
+			resultSet.getBoolean("manual_category")
 		);
-	}
-
-	/************************** Dynamic SQL Generators *****************************/
-	private static String buildSelectString(DatabaseSchema tableSchema) {
-		return String.format("SELECT %s FROM dbo.%s;",
-			String.join(", ", tableSchema.getAllColumns()), String.join(", ", tableSchema.getTableName()));
-	}
-
-	private static String buildInsertString(DatabaseSchema tableSchema) {
-		String tableName = tableSchema.getTableName();
-		List<String> columns = tableSchema.getNonIdColumns();
-
-		String whereConditionsString = columns.stream().map(column -> column + " =  ?").collect(Collectors.joining("AND "));
-		String columnsString = String.join(",", columns);
-		String questionsString = columns.stream().map(c -> "?").collect(Collectors.joining(","));
-
-		return String.format("IF NOT EXISTS ( SELECT FROM dbo.%s WHERE %s ) INSERT INTO dbo.%s ( %s ) VALUES ( %s );",
-			tableName, whereConditionsString, tableName, columnsString, questionsString
-		);
-	}
-
-	private static String buildDeleteString(DatabaseSchema tableSchema) {
-		return String.format("DELETE from dbo.%s WHERE id = ?;", tableSchema.getTableName());
 	}
 }

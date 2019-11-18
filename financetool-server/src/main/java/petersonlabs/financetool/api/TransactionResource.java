@@ -1,5 +1,6 @@
 package petersonlabs.financetool.api;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -7,11 +8,9 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.UploadedFile;
 import io.javalin.plugin.openapi.annotations.*;
+import petersonlabs.financetool.Util;
 import petersonlabs.financetool.dao.Dao;
-import petersonlabs.financetool.model.Category;
-import petersonlabs.financetool.model.Source;
-import petersonlabs.financetool.model.Transaction;
-import petersonlabs.financetool.model.Type;
+import petersonlabs.financetool.model.*;
 
 import java.io.*;
 import java.nio.Buffer;
@@ -40,11 +39,42 @@ public class TransactionResource {
 
 	public void setup()
 	{
-		javalin.post("/api/transactions", this::upsertTransactions);
+		javalin.patch("api/transactions", this::patchTransaction);
+		javalin.post("/api/transactions", this::postTransactions);
 		javalin.get("/api/transactions", this::getTransactions);
 	}
 
 	@OpenApi(
+		tags = {"Transaction"},
+		summary = "set transaction categories",
+		description = """
+		this endpoint will set the category of a transaction.  It can also be used to make the category get ignored by
+		category matchers when the manual category property is set to true.
+		""",
+		requestBody = @OpenApiRequestBody(
+			content = @OpenApiContent(from = Transaction.class, type = "application/json", isArray = true),
+			required = true,
+			description = "a list of transactions to update"
+		),
+		responses = {
+			@OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json")),
+			@OpenApiResponse(status = "500")
+		},
+		path = "/api/transactions",
+		method = HttpMethod.PATCH
+	)
+	public void patchTransaction(Context context) throws SQLException, IOException
+	{
+		dao.updateTransactions(
+			Util.parseJson(
+				context.body(),
+					new TypeReference<Set<Transaction>>(){}
+			)
+		);
+	}
+
+	@OpenApi(
+		tags = {"Transaction"},
 		summary = "get transactions",
 		description = "gets the transactions",
 		responses = {
@@ -60,6 +90,7 @@ public class TransactionResource {
 	}
 
 	@OpenApi(
+		tags = {"Transaction"},
 		summary = "upload csv",
 		description = "upload a transaction csv file from the bank to add it to the database",
 		fileUploads = { @OpenApiFileUpload(name = "transactions", description = "the csv file from the bank")},
@@ -68,9 +99,9 @@ public class TransactionResource {
 			@OpenApiResponse(status = "500")
 		},
 		path = "/api/transactions",
-		method = HttpMethod.GET
+		method = HttpMethod.POST
 	)
-	private void upsertTransactions(Context context) throws SQLException, IOException, ParseException
+	private void postTransactions(Context context) throws SQLException, IOException, ParseException
 	{
 		UploadedFile file = context.uploadedFile("transactions");
 		if(Objects.nonNull(file)){
@@ -124,6 +155,7 @@ public class TransactionResource {
 		float amount = Float.POSITIVE_INFINITY;
 		Source source = null;
 		Category category = Category.UNKNOWN;
+		boolean manualCategory = false;
 		Type type = null;
 
 
@@ -145,7 +177,7 @@ public class TransactionResource {
 
 						String[] vendorSourceParts = thisValue.split(thisSource.getName());
 						if(vendorSourceParts.length > 0)
-							vendor = vendorSourceParts[1];
+							vendor = vendorSourceParts[1].trim();
 						else
 							vendor = "";
 
@@ -162,6 +194,6 @@ public class TransactionResource {
 			}
 
 		}
-		return new Transaction(date, vendor, amount, source, category, type);
+		return new Transaction(date, vendor, amount, source, category, type, manualCategory);
 	}
 }
