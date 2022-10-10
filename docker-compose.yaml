@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=finance
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+  grafana:
+    image: grafana/grafana-oss:7.5.0
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_INSTALL_PLUGINS=marcusolsson-json-datasource
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+volumes:
+  db:
+    driver: local
