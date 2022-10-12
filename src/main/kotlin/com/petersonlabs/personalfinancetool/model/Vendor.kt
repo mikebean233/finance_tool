@@ -11,7 +11,7 @@ class Vendor(
     @Column(nullable = false, unique = true)
     val id: Long? = null,
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = false)
     val name: String? = null,
 
     @Column(nullable = false, unique = false)
