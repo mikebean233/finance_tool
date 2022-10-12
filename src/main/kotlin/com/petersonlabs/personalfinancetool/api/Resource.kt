@@ -16,6 +16,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.function.Predicate
 import java.util.stream.Collectors
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceContext
@@ -28,7 +29,9 @@ class TransactionResource(
     @PersistenceContext
     val entityManager: EntityManager
 ) {
-
+    val creditCardPaymentFilter = Predicate<MatchedTransaction> {
+        !it.description.contains("payment to credit card", true) && !it.description.contains("payment thank you", true)
+    }
 
     @PostMapping("/uploadCSV", consumes = [MULTIPART_FORM_DATA_VALUE])
     @Tag(name = "Transaction")
@@ -45,7 +48,7 @@ class TransactionResource(
         val transactions = csvParser.map {
             Transaction(
                 date = LocalDate.parse(it.get("Date"), DateTimeFormatter.ISO_LOCAL_DATE),
-                type = TransactionType.valueOf(it.get("Transaction")),
+                type = TransactionType.fromName(it.get("Transaction")),
                 description = it.get("Name"),
                 memo = it.get("Memo"),
                 amount = it.get("Amount").toDouble()
@@ -112,6 +115,7 @@ class TransactionResource(
                 )
             }.filter {
                 (startDate == null || !it.date.isBefore(startDate)) && (endDate == null || !it.date.isAfter(it.date))
+                        && creditCardPaymentFilter.test(it)
             }
     }
 
