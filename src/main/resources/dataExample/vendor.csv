@@ -1,0 +1,6 @@
+name,matcher,category
+"unknown vendor","","uncategorized"
+"bobs burgers","%bobs bur%","food"
+"acme utilities","%acme util%","utilities"
+"check","%check #%","checks"
+"employer-1","%employer-1%","income"
