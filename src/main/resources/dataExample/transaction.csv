@@ -1,0 +1,5 @@
+"Date","Transaction","Name","Memo","Amount"
+"2022-01-01","DEBIT","---- bobs bur* ----","memo-1","-10.23"
+"2022-01-01","DEBIT","---- acme util 112314125","memo-2","-10.23"
+"2022-01-15","CREDIT","---- deposit from employer-1 ---- ","memo-3","500.35"
+"2022-02-01","123","---- Check #123 ----","","-50"

@@ -27,7 +27,8 @@ class TransactionResource(
     val repo: TransactionRepository,
     val categoryRepo: CategoryRepository,
     @PersistenceContext
-    val entityManager: EntityManager
+    val entityManager: EntityManager,
+    val transactionController: TransactionController
 ) {
     val creditCardPaymentFilter = Predicate<MatchedTransaction> {
         !it.description.contains("payment to credit card", true) && !it.description.contains("payment thank you", true)
@@ -36,26 +37,7 @@ class TransactionResource(
     @PostMapping("/uploadCSV", consumes = [MULTIPART_FORM_DATA_VALUE])
     @Tag(name = "Transaction")
     fun handleFileUpload(@RequestParam("file") file: MultipartFile): String? {
-        val bufferedReader = BufferedReader(InputStreamReader(file.inputStream));
-
-        val csvParser = CSVParser(
-            bufferedReader, CSVFormat.DEFAULT
-                .withFirstRecordAsHeader()
-                .withIgnoreHeaderCase()
-                .withTrim()
-        );
-
-        val transactions = csvParser.map {
-            Transaction(
-                date = LocalDate.parse(it.get("Date"), DateTimeFormatter.ISO_LOCAL_DATE),
-                type = TransactionType.fromName(it.get("Transaction")),
-                description = it.get("Name"),
-                memo = it.get("Memo"),
-                amount = it.get("Amount").toDouble()
-            )
-        }.toList()
-
-        repo.saveAll(transactions)
+        transactionController.storeTransactionsFromCSVInputStream(file.inputStream)
         return "OK"
     }
 
@@ -104,6 +86,8 @@ class TransactionResource(
                 val cols = (it as Array<*>)
                 val amountNegator = when(TransactionType.fromOrdinal(cols[3] as Int)) {
                     TransactionType.DEBIT -> -1
+                    TransactionType.CHECK -> -1
+                    TransactionType.CREDIT -> 1
                     else -> 1
                 }
                 MatchedTransaction(
