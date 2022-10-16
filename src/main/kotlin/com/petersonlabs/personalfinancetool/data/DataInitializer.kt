@@ -24,7 +24,14 @@ class DataInitializer(
 
     @PostConstruct
     fun postConstruct() {
+        initializeData()
+    }
+
+    fun initializeData(initializeTransactions: Boolean = true) {
         if(csvFileRoot.isNotEmpty() && csvFileRoot.isNotBlank()) {
+            vendorRepo.deleteAll()
+            categoryRepo.deleteAll()
+
             categoryRepo.saveAll(
                 buildCSVParser(ClassPathResource("$csvFileRoot/category.csv").file)
                     .map { Category(name = it.get("name")) }
@@ -44,7 +51,8 @@ class DataInitializer(
                     ) }
             )
 
-            transactionController.storeTransactionsFromCSVInputStream(ClassPathResource("$csvFileRoot/transaction.csv").file.inputStream())
+            if(initializeTransactions)
+                transactionController.storeTransactionsFromCSVInputStream(ClassPathResource("$csvFileRoot/transaction.csv").file.inputStream())
         }
     }
 

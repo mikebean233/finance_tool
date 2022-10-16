@@ -2,20 +2,16 @@ package com.petersonlabs.personalfinancetool.api
 
 import com.petersonlabs.personalfinancetool.Constants
 import com.petersonlabs.personalfinancetool.data.CategoryRepository
+import com.petersonlabs.personalfinancetool.data.DataInitializer
 import com.petersonlabs.personalfinancetool.data.TransactionRepository
 import com.petersonlabs.personalfinancetool.data.VendorRepository
 import com.petersonlabs.personalfinancetool.model.*
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVParser
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.function.Predicate
 import java.util.stream.Collectors
 import javax.persistence.EntityManager
@@ -28,10 +24,18 @@ class TransactionResource(
     val categoryRepo: CategoryRepository,
     @PersistenceContext
     val entityManager: EntityManager,
-    val transactionController: TransactionController
+    val transactionController: TransactionController,
+    val dataInitilaizer: DataInitializer
 ) {
     val creditCardPaymentFilter = Predicate<MatchedTransaction> {
         !it.description.contains("payment to credit card", true) && !it.description.contains("payment thank you", true)
+    }
+
+    @GetMapping("/initialize")
+    @Tag(name = "Transaction")
+    fun initialize(@RequestParam("initializeTransactions", defaultValue = "false")  initializeTransactions: Boolean): String? {
+        dataInitilaizer.initializeData(initializeTransactions)
+        return "OK"
     }
 
     @PostMapping("/uploadCSV", consumes = [MULTIPART_FORM_DATA_VALUE])
