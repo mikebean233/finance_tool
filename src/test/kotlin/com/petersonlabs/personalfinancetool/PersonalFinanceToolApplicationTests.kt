@@ -7,9 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class PersonalFinanceToolApplicationTests {
 
-    @Test
-    @CsvFileSource(resources = [""])
-    fun contextLoads() {
-    }
+    //@Test
+    //@CsvFileSource(resources = [""])
+    //fun contextLoads() {
+   // }
 
 }
