@@ -122,7 +122,9 @@ class TransactionResource(
 
 @RestController
 @RequestMapping("vendor")
-class VendorResource {
+class VendorResource(
+    val dataInitilaizer: DataInitializer
+) {
     @Autowired
     lateinit var repo: VendorRepository
 
@@ -130,6 +132,13 @@ class VendorResource {
     @Tag(name = "Vendor")
     fun putVendors(@RequestBody vendors: List<Vendor>): String {
         repo.saveAll(vendors)
+        return "OK"
+    }
+
+    @PostMapping("/uploadCSV", consumes = [MULTIPART_FORM_DATA_VALUE])
+    @Tag(name = "Vendor")
+    fun handleFileUpload(@RequestParam("file") file: MultipartFile): String? {
+         dataInitilaizer.initializeVendors(file.inputStream)
         return "OK"
     }
 
@@ -141,7 +150,9 @@ class VendorResource {
 
 @RestController
 @RequestMapping("category")
-class CategoryResource {
+class CategoryResource(
+    val dataInitializer: DataInitializer
+) {
     @Autowired
     lateinit var repo: CategoryRepository
 
@@ -149,6 +160,13 @@ class CategoryResource {
     @Tag(name = "Category")
     fun putCategory(@RequestBody categories: List<Category>): String {
         repo.saveAll(categories)
+        return "OK"
+    }
+
+    @PostMapping("/uploadCSV", consumes = [MULTIPART_FORM_DATA_VALUE])
+    @Tag(name = "Category")
+    fun handleFileUpload(@RequestParam("file") file: MultipartFile): String? {
+        dataInitializer.initializeCategories(file.inputStream)
         return "OK"
     }
 

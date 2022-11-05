@@ -23,6 +23,15 @@ services:
     volumes:
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+  finance-tool:
+    image: finance-tool
+    restart: always
+    environment:
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/finance"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - '8080:8080'
 volumes:
   db:
     driver: local

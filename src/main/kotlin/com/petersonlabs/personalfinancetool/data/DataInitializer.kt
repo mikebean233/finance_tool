@@ -7,10 +7,13 @@ import com.petersonlabs.personalfinancetool.model.Vendor
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Component
 import java.io.BufferedReader
 import java.io.File
+import java.io.InputStream
 import java.io.InputStreamReader
+import java.net.URI
 import javax.annotation.PostConstruct
 
 @Component
@@ -27,38 +30,44 @@ class DataInitializer(
         initializeData()
     }
 
+    fun initializeCategories(categoryIS: InputStream) {
+        vendorRepo.deleteAll()
+        categoryRepo.deleteAll()
+
+        categoryRepo.saveAll(
+            buildCSVParser(categoryIS).map { Category(name = it.get("name")) }
+        )
+    }
+
+    fun initializeVendors(vendorIS: InputStream) {
+        vendorRepo.deleteAll()
+        val categories = categoryRepo
+            .findAll()
+            .filterNotNull()
+            .associateBy { it.name }
+
+        vendorRepo.saveAll(
+            buildCSVParser(vendorIS)
+                .map { Vendor(
+                    name = it.get("name"),
+                    matcher = it.get("matcher"),
+                    category = categories[it.get("category")]!!
+                ) }
+        )
+    }
+
     fun initializeData(initializeTransactions: Boolean = true) {
         if(csvFileRoot.isNotEmpty() && csvFileRoot.isNotBlank()) {
-            vendorRepo.deleteAll()
-            categoryRepo.deleteAll()
-
-            categoryRepo.saveAll(
-                buildCSVParser(ClassPathResource("$csvFileRoot/category.csv").file)
-                    .map { Category(name = it.get("name")) }
-            )
-
-            val categories = categoryRepo
-                .findAll()
-                .filterNotNull()
-                .associateBy { it.name }
-
-            vendorRepo.saveAll(
-                buildCSVParser(ClassPathResource("$csvFileRoot/vendor.csv").file)
-                    .map { Vendor(
-                        name = it.get("name"),
-                        matcher = it.get("matcher"),
-                        category = categories[it.get("category")]!!
-                    ) }
-            )
-
+            initializeCategories(UrlResource("$csvFileRoot/category.csv").inputStream)
+            initializeVendors(UrlResource("$csvFileRoot/vendor.csv").inputStream)
             if(initializeTransactions)
-                transactionController.storeTransactionsFromCSVInputStream(ClassPathResource("$csvFileRoot/transaction.csv").file.inputStream())
+                transactionController.storeTransactionsFromCSVInputStream(ClassPathResource("$csvFileRoot/transaction.csv").inputStream)
         }
     }
 
-    private fun buildCSVParser(file: File) : CSVParser {
+    private fun buildCSVParser(inputStream: InputStream) : CSVParser {
        return CSVParser(
-            BufferedReader(InputStreamReader(file.inputStream())), CSVFormat.DEFAULT
+            BufferedReader(InputStreamReader(inputStream)), CSVFormat.DEFAULT
                 .withFirstRecordAsHeader()
                 .withIgnoreHeaderCase()
                 .withTrim()
