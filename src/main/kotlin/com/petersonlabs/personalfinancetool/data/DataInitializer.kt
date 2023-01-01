@@ -61,7 +61,7 @@ class DataInitializer(
             initializeCategories(UrlResource("$csvFileRoot/category.csv").inputStream)
             initializeVendors(UrlResource("$csvFileRoot/vendor.csv").inputStream)
             if(initializeTransactions)
-                transactionController.storeTransactionsFromCSVInputStream(ClassPathResource("$csvFileRoot/transaction.csv").inputStream)
+                transactionController.storeTransactionsFromCSVInputStream(UrlResource("$csvFileRoot/transaction.csv").inputStream)
         }
     }
 
