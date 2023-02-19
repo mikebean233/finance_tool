@@ -13,6 +13,7 @@ import com.petersonlabs.personalfinancetool.model.TransactionType
 import com.petersonlabs.personalfinancetool.model.Vendor
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.http.MediaType.TEXT_PLAIN_VALUE
@@ -99,8 +100,13 @@ class TransactionResource(
     @GetMapping("/matched", produces = [APPLICATION_JSON_VALUE])
     @Tag(name = "Transaction")
     fun getMatchedTransactions(
+        @RequestParam
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         startDate: LocalDate? = null,
-        endDate: LocalDate? = null
+        @RequestParam
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        endDate: LocalDate? = null,
+        @RequestParam onlyUnmatched: Boolean? = false
     ): List<MatchedTransaction> {
         return entityManager
             .createNativeQuery(Constants.MATCHED_TRANSACTIONS_QUERY)
@@ -120,8 +126,10 @@ class TransactionResource(
                     category = cols[5] as String
                 )
             }.filter {
-                (startDate == null || !it.date.isBefore(startDate)) && (endDate == null || !it.date.isAfter(it.date)) &&
-                    creditCardPaymentFilter.test(it)
+                (startDate == null || !it.date.isBefore(startDate)) &&
+                    (endDate == null || !it.date.isAfter(it.date)) &&
+                    creditCardPaymentFilter.test(it) &&
+                    (it.category == "uncategorized" || onlyUnmatched != true)
             }
     }
 
@@ -134,7 +142,7 @@ class TransactionResource(
 
     @Tag(name = "Transaction")
     @GetMapping(produces = [APPLICATION_JSON_VALUE])
-    fun getTransactions(): MutableIterable<Transaction?> =
+    fun getTransactions() =
         repo.findAll()
 }
 
