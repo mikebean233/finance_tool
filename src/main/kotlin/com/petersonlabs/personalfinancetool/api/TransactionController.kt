@@ -17,15 +17,16 @@ class TransactionController(
     private val transactionRepo: TransactionRepository
 ) {
     fun storeTransactionsFromCSVInputStream(inputStream: InputStream) {
-        val bufferedReader = BufferedReader(InputStreamReader(inputStream));
+        val bufferedReader = BufferedReader(InputStreamReader(inputStream))
 
         val existingTransactions = transactionRepo.findAll().toSet()
         val csvParser = CSVParser(
-            bufferedReader, CSVFormat.DEFAULT
+            bufferedReader,
+            CSVFormat.DEFAULT
                 .withFirstRecordAsHeader()
                 .withIgnoreHeaderCase()
                 .withTrim()
-        );
+        )
 
         val transactions = csvParser.map {
             Transaction(
@@ -35,7 +36,7 @@ class TransactionController(
                 memo = it.get("Memo"),
                 amount = it.get("Amount").toDouble()
             )
-        }.filter {!existingTransactions.contains(it)}.toList()
+        }.filter { !existingTransactions.contains(it) }.toList()
 
         transactionRepo.saveAll(transactions)
     }

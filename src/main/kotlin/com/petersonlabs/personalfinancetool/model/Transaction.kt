@@ -1,7 +1,12 @@
 package com.petersonlabs.personalfinancetool.model
 
 import java.time.LocalDate
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
+import javax.persistence.Id
+import javax.persistence.Table
 
 @Entity
 @Table(name = "transaction")
@@ -29,13 +34,13 @@ data class Transaction(
     // excluding id, this is used in case duplicate transactions
     // are uploaded
     override fun equals(other: Any?): Boolean {
-        return other != null
-                && other is Transaction
-                && other.amount == amount
-                && other.date == date
-                && other.memo == memo
-                && other.description == description
-                && other.type == type
+        return other != null &&
+            other is Transaction &&
+            other.amount == amount &&
+            other.date == date &&
+            other.memo == memo &&
+            other.description == description &&
+            other.type == type
     }
 
     override fun hashCode(): Int {
