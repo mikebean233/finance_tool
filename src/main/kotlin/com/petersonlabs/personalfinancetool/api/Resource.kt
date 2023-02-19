@@ -5,11 +5,24 @@ import com.petersonlabs.personalfinancetool.data.CategoryRepository
 import com.petersonlabs.personalfinancetool.data.DataInitializer
 import com.petersonlabs.personalfinancetool.data.TransactionRepository
 import com.petersonlabs.personalfinancetool.data.VendorRepository
-import com.petersonlabs.personalfinancetool.model.*
+import com.petersonlabs.personalfinancetool.model.Category
+import com.petersonlabs.personalfinancetool.model.CategoryTotal
+import com.petersonlabs.personalfinancetool.model.MatchedTransaction
+import com.petersonlabs.personalfinancetool.model.Transaction
+import com.petersonlabs.personalfinancetool.model.TransactionType
+import com.petersonlabs.personalfinancetool.model.Vendor
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType.*
-import org.springframework.web.bind.annotation.*
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
+import org.springframework.http.MediaType.TEXT_PLAIN_VALUE
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDate
 import java.util.function.Predicate
@@ -25,7 +38,7 @@ class TransactionResource(
     @PersistenceContext
     val entityManager: EntityManager,
     val transactionController: TransactionController,
-    val dataInitilaizer: DataInitializer
+    val dataInitializer: DataInitializer
 ) {
     val creditCardPaymentFilter = Predicate<MatchedTransaction> {
         !it.description.contains("payment to credit card", true) && !it.description.contains("payment thank you", true)
@@ -33,8 +46,8 @@ class TransactionResource(
 
     @GetMapping("/initialize")
     @Tag(name = "Transaction")
-    fun initialize(@RequestParam("initializeTransactions", defaultValue = "false")  initializeTransactions: Boolean): String? {
-        dataInitilaizer.initializeData(initializeTransactions)
+    fun initialize(@RequestParam("initializeTransactions", defaultValue = "false") initializeTransactions: Boolean): String? {
+        dataInitializer.initializeData(initializeTransactions)
         return "OK"
     }
 
@@ -47,8 +60,8 @@ class TransactionResource(
 
     @GetMapping("/matchedByMonth", produces = [APPLICATION_JSON_VALUE])
     @Tag(name = "Transaction")
-    fun getMatchedTransactionsByMonth() :List<Any?> {
-        val result : MutableList<CategoryTotal> = mutableListOf()
+    fun getMatchedTransactionsByMonth(): List<Any?> {
+        val result: MutableList<CategoryTotal> = mutableListOf()
         val zeroTotalCatMap = categoryRepo.findAll()
             .filterNotNull()
             .mapNotNull { it.name }
@@ -56,19 +69,25 @@ class TransactionResource(
             .associateWith { Double.fromBits(0) }
 
         getMatchedTransactions().stream()
-            .map { MatchedTransaction(
-                date = LocalDate.of(it.date.year, it.date.month, 1),
-                description = it.description,
-                amount = it.amount,
-                vendor = it.vendor,
-                category = it.category
-            ) }
+            .map {
+                MatchedTransaction(
+                    date = LocalDate.of(it.date.year, it.date.month, 1),
+                    description = it.description,
+                    amount = it.amount,
+                    vendor = it.vendor,
+                    category = it.category
+                )
+            }
             .collect(Collectors.groupingBy { it.date })
-            .mapValues { zeroTotalCatMap + it.value.stream()
-                .collect(Collectors.groupingBy(
-                    { byDate -> byDate.category },
-                    Collectors.summingDouble { byCat -> byCat.amount })) }
-
+            .mapValues {
+                zeroTotalCatMap + it.value.stream()
+                    .collect(
+                        Collectors.groupingBy(
+                            { byDate -> byDate.category },
+                            Collectors.summingDouble { byCat -> byCat.amount }
+                        )
+                    )
+            }
             .forEach { byDate ->
                 byDate.value.mapTo(result) { byCat ->
                     CategoryTotal(date = byDate.key, category = byCat.key, total = byCat.value)
@@ -76,7 +95,6 @@ class TransactionResource(
             }
         return result.sortedBy { it.date }
     }
-
 
     @GetMapping("/matched", produces = [APPLICATION_JSON_VALUE])
     @Tag(name = "Transaction")
@@ -88,7 +106,7 @@ class TransactionResource(
             .createNativeQuery(Constants.MATCHED_TRANSACTIONS_QUERY)
             .resultList.map {
                 val cols = (it as Array<*>)
-                val amountNegator = when(TransactionType.fromOrdinal(cols[3] as Int)) {
+                val amountNegator = when (TransactionType.fromOrdinal(cols[3] as Int)) {
                     TransactionType.DEBIT -> -1
                     TransactionType.CHECK -> -1
                     TransactionType.CREDIT -> 1
@@ -102,8 +120,8 @@ class TransactionResource(
                     category = cols[5] as String
                 )
             }.filter {
-                (startDate == null || !it.date.isBefore(startDate)) && (endDate == null || !it.date.isAfter(it.date))
-                        && creditCardPaymentFilter.test(it)
+                (startDate == null || !it.date.isBefore(startDate)) && (endDate == null || !it.date.isAfter(it.date)) &&
+                    creditCardPaymentFilter.test(it)
             }
     }
 
@@ -138,7 +156,7 @@ class VendorResource(
     @PostMapping("/uploadCSV", consumes = [MULTIPART_FORM_DATA_VALUE])
     @Tag(name = "Vendor")
     fun handleFileUpload(@RequestParam("file") file: MultipartFile): String? {
-         dataInitilaizer.initializeVendors(file.inputStream)
+        dataInitilaizer.initializeVendors(file.inputStream)
         return "OK"
     }
 

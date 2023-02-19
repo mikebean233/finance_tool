@@ -8,4 +8,4 @@ class MatchedTransaction(
     val amount: Double,
     val vendor: String,
     val category: String
-    )
+)

@@ -6,14 +6,11 @@ import com.petersonlabs.personalfinancetool.model.Category
 import com.petersonlabs.personalfinancetool.model.Vendor
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
-import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Component
 import java.io.BufferedReader
-import java.io.File
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.net.URI
 import javax.annotation.PostConstruct
 
 @Component
@@ -48,26 +45,30 @@ class DataInitializer(
 
         vendorRepo.saveAll(
             buildCSVParser(vendorIS)
-                .map { Vendor(
-                    name = it.get("name"),
-                    matcher = it.get("matcher"),
-                    category = categories[it.get("category")]!!
-                ) }
+                .map {
+                    Vendor(
+                        name = it.get("name"),
+                        matcher = it.get("matcher"),
+                        category = categories[it.get("category")]!!
+                    )
+                }
         )
     }
 
     fun initializeData(initializeTransactions: Boolean = true) {
-        if(csvFileRoot.isNotEmpty() && csvFileRoot.isNotBlank()) {
+        if (csvFileRoot.isNotEmpty() && csvFileRoot.isNotBlank()) {
             initializeCategories(UrlResource("$csvFileRoot/category.csv").inputStream)
             initializeVendors(UrlResource("$csvFileRoot/vendor.csv").inputStream)
-            if(initializeTransactions)
+            if (initializeTransactions) {
                 transactionController.storeTransactionsFromCSVInputStream(UrlResource("$csvFileRoot/transaction.csv").inputStream)
+            }
         }
     }
 
-    private fun buildCSVParser(inputStream: InputStream) : CSVParser {
-       return CSVParser(
-            BufferedReader(InputStreamReader(inputStream)), CSVFormat.DEFAULT
+    private fun buildCSVParser(inputStream: InputStream): CSVParser {
+        return CSVParser(
+            BufferedReader(InputStreamReader(inputStream)),
+            CSVFormat.DEFAULT
                 .withFirstRecordAsHeader()
                 .withIgnoreHeaderCase()
                 .withTrim()

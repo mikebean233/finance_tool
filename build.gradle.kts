@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.14.RELEASE"
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
+    id("org.jlleitschuh.gradle.ktlint") version "11.2.0"
 }
 
 group = "com.petersonlabs"
@@ -27,7 +28,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    //implementation("org.liquibase:liquibase-core")
+    // implementation("org.liquibase:liquibase-core")
     implementation("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

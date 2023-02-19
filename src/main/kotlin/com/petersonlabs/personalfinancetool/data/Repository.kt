@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface TransactionRepository : CrudRepository<Transaction?, Int?>
+
 @Repository
-interface VendorRepository: CrudRepository<Vendor?, Int?>
+interface VendorRepository : CrudRepository<Vendor?, Int?>
+
 @Repository
-interface CategoryRepository: CrudRepository<Category?, Int?>
+interface CategoryRepository : CrudRepository<Category?, Int?>
