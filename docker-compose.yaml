@@ -12,17 +12,14 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
   grafana:
-    image: grafana/grafana-oss:7.5.0
+    image: finance-tool-grafana
     restart: always
     ports:
       - '3000:3000'
     environment:
       - GF_INSTALL_PLUGINS=marcusolsson-json-datasource
     extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - "finance-tool-api-service:host-gateway"
   finance-tool:
     image: finance-tool
     restart: always
