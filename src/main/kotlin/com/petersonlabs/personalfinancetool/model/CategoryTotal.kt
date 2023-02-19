@@ -6,5 +6,4 @@ class CategoryTotal(
     val date: LocalDate,
     val category: String,
     val total: Double
-) {
-}
+)

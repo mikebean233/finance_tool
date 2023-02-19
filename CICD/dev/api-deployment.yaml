@@ -1,0 +1,58 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finance-tool-api-deployment
+  namespace: finance-tool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finance-tool-api
+  template:
+    metadata:
+      labels:
+        app: finance-tool-api
+    spec:
+      containers:
+        - name: finance-tool-api
+          image: finance-tool:dev
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+            requests:
+              memory: "500Mi"
+              cpu: "500m"
+          ports:
+            - name: httpport
+              containerPort: 8080
+          volumeMounts:
+            - name: finance-tool-api-volume
+              mountPath: /var/lib/finance-tool/
+              subPath: initData
+          env:
+            - name: FINANCE-TOOL_DATA-FILE-CONFIG_ROOT
+              value: file:/var/lib/finance-tool
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://finance-tool-db-service:5432/finance
+      volumes:
+        - name: finance-tool-api-volume
+          persistentVolumeClaim:
+            claimName: finance-tool-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finance-tool-api-service
+  namespace: finance-tool
+spec:
+  selector:
+    app: finance-tool-api
+  type: NodePort
+  ports:
+    - name: httpport
+      port: 8080
+      targetPort: 8080
+      nodePort: 31000

@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finance-tool-grafana-deployment
+  namespace: finance-tool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finance-tool-grafana
+  template:
+    metadata:
+      labels:
+        app: finance-tool-grafana
+    spec:
+      containers:
+        - name: finance-tool-grafana
+          image: finance-tool-grafana:dev
+          ports:
+            - name: httpport
+              containerPort: 3000
+          env:
+            - name: GF_INSTALL_PLUGINS
+              value: marcusolsson-json-datasource
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finance-tool-grafana-service
+  namespace: finance-tool
+spec:
+  selector:
+    app: finance-tool-grafana
+  type: NodePort
+  ports:
+    - name: httpport
+      port: 3000
+      nodePort: 32100

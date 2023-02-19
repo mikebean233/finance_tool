@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finance-tool-db-deployment
+  namespace: finance-tool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finance-tool-db
+  template:
+    metadata:
+      labels:
+        app: finance-tool-db
+    spec:
+      containers:
+        - name: finance-tool-db
+          image: postgres:14.1-alpine
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+            requests:
+              memory: "500Mi"
+              cpu: "500m"
+          ports:
+            - name: db-port
+              containerPort: 5432
+          volumeMounts:
+            - name: finance-tool-db-volume
+              mountPath: /var/lib/postgresql/data
+              subPath: dbData
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: finance
+      volumes:
+        - name: finance-tool-db-volume
+          persistentVolumeClaim:
+            claimName: finance-tool-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finance-tool-db-service
+  namespace: finance-tool
+spec:
+  selector:
+    app: finance-tool-db
+  type: NodePort
+  ports:
+    - name: db-port
+      port: 5432
+      targetPort: 5432
+      nodePort: 30000
