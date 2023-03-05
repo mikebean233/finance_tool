@@ -9,6 +9,7 @@ pipeline {
           labels:
             agent: some-label-value
         spec:
+          serviceAccountName: jenkins-agent
           containers:
           - name: gradle
             image: gradle:jdk17
@@ -29,6 +30,11 @@ pipeline {
             volumeMounts:
                - name: docker-socket
                  mountPath: /var/run/docker.sock
+          - name: k8s-tools
+            image: alpine/k8s:1.23.17
+            command:
+            - cat
+            tty: true
           volumes:
             - name: jenkins-agent-data
               persistentVolumeClaim:
@@ -70,6 +76,16 @@ pipeline {
               script {
                   docker.build 'finance-tool-grafana:dev'
                }
+            }
+        }
+      }
+    }
+    stage('deploy') {
+      steps {
+        container('k8s-tools') {
+            dir("checkout/CICD/dev") {
+                sh 'kubectl kustomize ./ > combined.yaml'
+                sh 'kubectl apply -f combined.yaml'
             }
         }
       }
