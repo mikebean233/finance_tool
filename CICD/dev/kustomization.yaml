@@ -7,3 +7,4 @@ resources:
   - db-deployment.yaml
   - api-deployment.yaml
   - grafana-deployment.yaml
+  - web-deployment.yaml
