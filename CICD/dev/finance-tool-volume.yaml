@@ -11,12 +11,12 @@ spec:
   resources:
     requests:
       storage: 3Gi
-
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: finannce-tool-pv
+  name: finance-tool-pv
+  namespace: finance-tool
   labels:
     type: local
 spec:

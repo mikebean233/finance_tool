@@ -16,14 +16,12 @@ spec:
     spec:
       containers:
         - name: finance-tool-api
-          image: finance-tool:dev
+          image: finance-tool:0.0.2-SNAPSHOT
           resources:
             limits:
               memory: "1Gi"
-              cpu: "1000m"
             requests:
               memory: "500Mi"
-              cpu: "500m"
           ports:
             - name: httpport
               containerPort: 8080
