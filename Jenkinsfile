@@ -78,6 +78,8 @@ pipeline {
       steps {
         container('npm') {
           dir('checkout/finance-tool-web') {
+            sh 'npm install'
+            sh 'npm install react-scripts@5.0.1'
             sh 'npm run build'
           }
         }
