@@ -1,26 +1,32 @@
-import logo from './logo.svg';
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import './App.css';
+import TransactionsTab from './Components/TransactionsTab';
+import CategoriesTab from './Components/CategoriesTab';
+import VendorsTab from './Components/VendorsTab';
+
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-      <body>
-
-      </body>
+        <header className="App-header">
+            <h1>Finance Tool Web Interface</h1>
+        </header>
+            <Tabs className="Tabs">
+                <TabList>
+                    <Tab>Transactions</Tab>
+                    <Tab>Categories</Tab>
+                    <Tab>Vendors</Tab>
+                </TabList>
+                <TabPanel>
+                    <TransactionsTab />
+                </TabPanel>
+                <TabPanel>
+                    <CategoriesTab />
+                </TabPanel>
+                <TabPanel>
+                    <VendorsTab />
+                </TabPanel>
+            </Tabs>
     </div>
   );
 }
