@@ -35,6 +35,11 @@ pipeline {
             command:
             - cat
             tty: true
+          - name: npm
+            image: node:lts-alpine3.17
+            command:
+            - cat
+            tty: true
           volumes:
             - name: jenkins-agent-data
               persistentVolumeClaim:
@@ -66,6 +71,28 @@ pipeline {
                   docker.build 'finance-tool:0.0.2-SNAPSHOT'
                }
             }
+        }
+      }
+    }
+    stage('npm build (web)') {
+      steps {
+        container('npm') {
+          dir('checkout/finance-tool-web') {
+            sh 'npm install'
+            sh 'npm install react-scripts@5.0.1'
+            sh 'npm run build'
+          }
+        }
+      }
+    }
+    stage('docker image build (web)') {
+      steps {
+        container('docker') {
+          dir('checkout/finance-tool-web') {
+            script {
+              docker.build 'finance-tool-web:0.0.2-SNAPSHOT'
+            }
+          }
         }
       }
     }
