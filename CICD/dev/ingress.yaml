@@ -22,3 +22,10 @@ spec:
               name: finance-tool-grafana-service
               port:
                 number: 80
+        - path: /web
+          pathType: Prefix
+          backend:
+            service:
+              name: finance-tool-web-service
+              port:
+                number: 80
