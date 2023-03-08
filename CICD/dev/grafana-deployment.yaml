@@ -37,4 +37,4 @@ spec:
   ports:
     - name: httpport
       port: 3000
-      nodePort: 32100
+      nodePort: 80
