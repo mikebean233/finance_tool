@@ -1,0 +1,1 @@
+%(protocol)s://%(domain)s:%(http_port)s/grafana

@@ -1,5 +1,6 @@
 {
   "name": "finance-tool-web",
+  "homepage": "/web/",
   "version": "0.0.2-SNAPSHOT",
   "private": true,
   "dependencies": {
