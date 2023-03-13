@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: finance-tool-grafana
-          image: finance-tool-grafana:0.0.2-SNAPSHOT
+          image: finance-tool-grafana:0.0.3-SNAPSHOT
           ports:
             - name: httpport
               containerPort: 3000

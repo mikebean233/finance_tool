@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: finance-tool-web
-          image: finance-tool-web:0.0.2-SNAPSHOT
+          image: finance-tool-web:0.0.3-SNAPSHOT
           ports:
             - name: httpport
               containerPort: 80
