@@ -68,7 +68,7 @@ pipeline {
         container('docker') {
             dir("checkout") {
               script {
-                  docker.build 'finance-tool:0.0.4-SNAPSHOT'
+                  docker.build 'finance-tool:0.0.5-SNAPSHOT'
                }
             }
         }
@@ -90,7 +90,7 @@ pipeline {
         container('docker') {
           dir('checkout/finance-tool-web') {
             script {
-              docker.build 'finance-tool-web:0.0.4-SNAPSHOT'
+              docker.build 'finance-tool-web:0.0.5-SNAPSHOT'
             }
           }
         }
@@ -101,7 +101,7 @@ pipeline {
         container('docker') {
             dir("checkout/grafana") {
               script {
-                  docker.build 'finance-tool-grafana:0.0.4-SNAPSHOT'
+                  docker.build 'finance-tool-grafana:0.0.5-SNAPSHOT'
                }
             }
         }

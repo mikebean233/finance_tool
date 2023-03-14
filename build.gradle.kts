@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.petersonlabs"
-version = "0.0.4-SNAPSHOT"
+version = "0.0.5-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
