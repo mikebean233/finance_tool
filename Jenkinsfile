@@ -1,7 +1,7 @@
 pipeline {
   agent {
     kubernetes {
-      podTemplate(yaml: readTrusted('agent-pod.yaml'))
+      yaml: readTrusted('agent-pod.yaml')
     }
   }
   options { checkoutToSubdirectory('checkout') }
