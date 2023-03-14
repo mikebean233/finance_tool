@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import MaterialReactTable from 'material-react-table';
+import { getApiPrefix } from "../Common";
 
 function CategoriesTab() {
     const [categories, setCategories] = useState([]);
     const [columns, setColumns] = useState([]);
     useEffect(() => {
-        fetch(process.env.REACT_APP_API_BASE + "/category/schema") // your url may look different
+        fetch(`${getApiPrefix()}/category/schema`) // your url may look different
             .then(resp => resp.json())
             .then(data => {
                 setColumns(data.map(it => {return {header: it.name, accessorKey: it.name }})
@@ -14,7 +15,7 @@ function CategoriesTab() {
     }, []);
 
     useEffect(() => {
-        fetch(process.env.REACT_APP_API_BASE + "/category") // your url may look different
+        fetch(`${getApiPrefix()}/category`) // your url may look different
             .then(resp => resp.json())
             .then(data => setCategories(data)) // set data to state
     }, [columns]);
