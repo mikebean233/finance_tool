@@ -7,8 +7,7 @@ pipeline {
   options { checkoutToSubdirectory('checkout') }
   stages {
   	stage('Parallel stages') {
-		failFast true
-		parallel {
+  		parallel {
 		  // API
 		  stage('api build / publish') {
 			input {
@@ -72,26 +71,27 @@ pipeline {
 			  }
 			}
 		  }
-		}
 
-		// GRAFANA
-		stage('grafana build / publish') {
-		  input {
-			message "publish grafana?"
-			ok "Yes"
-		  }
-		  stages {
-			stage('docker image build (grafana)') {
-			  steps {
-				container('docker') {
-				  dir("checkout/grafana") {
-					script {
-					  docker.build 'finance-tool-grafana:0.0.5-SNAPSHOT'
-					}
+
+		  // GRAFANA
+		  stage('grafana build / publish') {
+		    input {
+		  	  message "publish grafana?"
+			  ok "Yes"
+		    }
+		    stages {
+			  stage('docker image build (grafana)') {
+			    steps {
+				  container('docker') {
+				    dir("checkout/grafana") {
+					  script {
+					    docker.build 'finance-tool-grafana:0.0.5-SNAPSHOT'
+					  }
+				    }
 				  }
-				}
+			    }
 			  }
-			}
+		    }
 		  }
 		}
 	}
@@ -108,4 +108,5 @@ pipeline {
       }
     }
   }
+
 }
