@@ -7,8 +7,8 @@ pipeline {
   options { checkoutToSubdirectory('checkout') }
   stages {
   	stage('Parallel stages') {
+		failFast true
 		parallel {
-		  failFast true
 		  // API
 		  stage('api build / publish') {
 			input {
