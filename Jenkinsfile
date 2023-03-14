@@ -1,11 +1,4 @@
-pipeline {
-  agent {
-    kubernetes {
-      yamlFile 'agent-pod.yaml'
-    }
-  }
-  options { checkoutToSubdirectory('checkout') }
-  stages {
+def apiBuildPublish() {
     stage('gradle build (api)') {
       steps {
         container('gradle') {
@@ -20,14 +13,17 @@ pipeline {
     stage('docker image build (api)') {
       steps {
         container('docker') {
-            dir("checkout") {
-              script {
-                  docker.build 'finance-tool:0.0.5-SNAPSHOT'
-               }
+          dir("checkout") {
+            script {
+              docker.build 'finance-tool:0.0.5-SNAPSHOT'
             }
+          }
         }
       }
     }
+}
+
+def webBuildPublish() {
     stage('npm build (web)') {
       steps {
         container('npm') {
@@ -50,24 +46,41 @@ pipeline {
         }
       }
     }
+}
+
+def dockerPublish() {
     stage('docker image build (grafana)') {
       steps {
         container('docker') {
-            dir("checkout/grafana") {
-              script {
-                  docker.build 'finance-tool-grafana:0.0.5-SNAPSHOT'
-               }
+          dir("checkout/grafana") {
+            script {
+              docker.build 'finance-tool-grafana:0.0.5-SNAPSHOT'
             }
+          }
         }
       }
     }
+}
+
+pipeline {
+  agent {
+    kubernetes {
+      yamlFile 'agent-pod.yaml'
+    }
+  }
+  options { checkoutToSubdirectory('checkout') }
+  stages {
+	apiBuildPublish()
+	webBuildPublish()
+	dockerPublish()
+
     stage('deploy') {
       steps {
         container('k8s-tools') {
-            dir("checkout/CICD/dev") {
-                sh 'kubectl kustomize ./ > combined.yaml'
-                sh 'kubectl apply -f combined.yaml'
-            }
+          dir("checkout/CICD/dev") {
+            sh 'kubectl kustomize ./ > combined.yaml'
+            sh 'kubectl apply -f combined.yaml'
+          }
         }
       }
     }
