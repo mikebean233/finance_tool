@@ -5,7 +5,7 @@ function TransactionsTab() {
     const [transactions, setTransactions] = useState([]);
     const [transactionColumns, setTransactionColumns] = useState([]);
     useEffect(() => {
-        fetch("http://localhost:8080/transaction/schema") // your url may look different
+        fetch(process.env.REACT_APP_API_BASE + "/transaction/schema") // your url may look different
             .then(resp => resp.json())
             .then(data => {
                 setTransactionColumns(data.map(it => {
@@ -20,7 +20,7 @@ function TransactionsTab() {
     }, []);
 
     useEffect(() => {
-        fetch("http://localhost:8080/transaction") // your url may look different
+        fetch(process.env.REACT_APP_API_BASE + "/transaction") // your url may look different
             .then(resp => resp.json())
             .then(data => setTransactions(data)) // set data to state
     }, [transactionColumns]);
@@ -28,7 +28,7 @@ function TransactionsTab() {
     const [matchedTransactions, setMatchedTransactions] = useState([]);
     const [matchedTransactionColumns, setMatchedTransactionColumns] = useState([]);
     useEffect(() => {
-        fetch("http://localhost:8080/transaction/matched/schema") // your url may look different
+        fetch(process.env.REACT_APP_API_BASE + "/transaction/matched/schema") // your url may look different
             .then(resp => resp.json())
             .then(data => {
                 setMatchedTransactionColumns(data.map(it => {
@@ -42,7 +42,7 @@ function TransactionsTab() {
     }, []);
 
     useEffect(() => {
-        fetch("http://localhost:8080/transaction/matched") // your url may look different
+        fetch(process.env.REACT_APP_API_BASE + "/transaction/matched") // your url may look different
             .then(resp => resp.json())
             .then(data => setMatchedTransactions(data)) // set data to state
     }, [matchedTransactionColumns]);

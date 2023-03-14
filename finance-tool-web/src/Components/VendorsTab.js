@@ -5,7 +5,7 @@ function VendorsTab() {
     const [vendors, setVendors] = useState([]);
     const [columns, setColumns] = useState([]);
     useEffect(() => {
-        fetch("http://localhost:8080/vendor/schema") // your url may look different
+        fetch(process.env.REACT_APP_API_BASE + "/vendor/schema") // your url may look different
             .then(resp => resp.json())
             .then(data => {
                 setColumns(data.map(it => {
@@ -16,7 +16,7 @@ function VendorsTab() {
     }, []);
 
     useEffect(() => {
-        fetch("http://localhost:8080/vendor") // your url may look different
+        fetch(process.env.REACT_APP_API_BASE + "/vendor") // your url may look different
             .then(resp => resp.json())
             .then(data => setVendors(data)) // set data to state
     }, [columns]);

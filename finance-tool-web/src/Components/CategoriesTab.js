@@ -5,7 +5,7 @@ function CategoriesTab() {
     const [categories, setCategories] = useState([]);
     const [columns, setColumns] = useState([]);
     useEffect(() => {
-        fetch("http://localhost:8080/category/schema") // your url may look different
+        fetch(process.env.REACT_APP_API_BASE + "/category/schema") // your url may look different
             .then(resp => resp.json())
             .then(data => {
                 setColumns(data.map(it => {return {header: it.name, accessorKey: it.name }})
@@ -14,7 +14,7 @@ function CategoriesTab() {
     }, []);
 
     useEffect(() => {
-        fetch("http://localhost:8080/category") // your url may look different
+        fetch(process.env.REACT_APP_API_BASE + "/category") // your url may look different
             .then(resp => resp.json())
             .then(data => setCategories(data)) // set data to state
     }, [columns]);
