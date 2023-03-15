@@ -10,10 +10,6 @@ pipeline {
   		parallel {
 		  // API
 		  stage('api build / publish') {
-			input {
-			  message "Build and publish api?"
-			  ok "Yes"
-			}
 			stages {
 			  stage('gradle build (api)') {
 				steps {
@@ -42,10 +38,6 @@ pipeline {
 
 		  // WEB
 		  stage('web build / publish') {
-			input {
-			  message "Build and publish web?"
-			  ok "Yes"
-			}
 			stages {
 			  stage('npm build (web)') {
 				steps {
@@ -75,10 +67,6 @@ pipeline {
 
 		  // GRAFANA
 		  stage('grafana build / publish') {
-		    input {
-		  	  message "publish grafana?"
-			  ok "Yes"
-		    }
 		    stages {
 			  stage('docker image build (grafana)') {
 			    steps {
