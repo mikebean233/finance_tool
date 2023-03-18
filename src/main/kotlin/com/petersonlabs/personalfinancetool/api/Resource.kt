@@ -31,6 +31,8 @@ import java.util.stream.Collectors
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceContext
 
+val getSchema = { t: Class<*> -> t.declaredFields.map { mapOf("name" to it.name, "type" to it.type) } }
+
 @RestController
 @RequestMapping("transaction")
 class TransactionResource(
@@ -98,7 +100,7 @@ class TransactionResource(
     }
 
     @GetMapping("/matched", produces = [APPLICATION_JSON_VALUE])
-    @Tag(name = "Transaction")
+    @Tag(name = "MatchedTransaction")
     fun getMatchedTransactions(
         @RequestParam
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -133,6 +135,11 @@ class TransactionResource(
             }
     }
 
+    @Tag(name = "MatchedTransaction")
+    @GetMapping("/matched/schema", produces = [APPLICATION_JSON_VALUE])
+    fun getMatchedTransactionSchema() =
+        getSchema(MatchedTransaction::class.java)
+
     @PutMapping(produces = [TEXT_PLAIN_VALUE], consumes = [APPLICATION_JSON_VALUE])
     @Tag(name = "Transaction")
     fun putTransactions(@RequestBody transactions: List<Transaction>): String {
@@ -144,6 +151,11 @@ class TransactionResource(
     @GetMapping(produces = [APPLICATION_JSON_VALUE])
     fun getTransactions() =
         repo.findAll()
+
+    @Tag(name = "Transaction")
+    @GetMapping("/schema", produces = [APPLICATION_JSON_VALUE])
+    fun getTransactionSchema() =
+        getSchema(Transaction::class.java)
 }
 
 @RestController
@@ -172,6 +184,11 @@ class VendorResource(
     @GetMapping(produces = [APPLICATION_JSON_VALUE])
     fun getVendors(): MutableIterable<Vendor?> =
         repo.findAll()
+
+    @Tag(name = "Vendor")
+    @GetMapping("/schema", produces = [APPLICATION_JSON_VALUE])
+    fun getVendorSchema() =
+        getSchema(Vendor::class.java)
 }
 
 @RestController
@@ -200,4 +217,9 @@ class CategoryResource(
     @GetMapping(produces = [APPLICATION_JSON_VALUE])
     fun getCategories(): MutableIterable<Category?> =
         repo.findAll()
+
+    @Tag(name = "Category")
+    @GetMapping("/schema", produces = [APPLICATION_JSON_VALUE])
+    fun getCategorySchema() =
+        getSchema(Category::class.java)
 }

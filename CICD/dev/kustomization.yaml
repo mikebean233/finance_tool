@@ -8,3 +8,4 @@ resources:
   - api-deployment.yaml
   - grafana-deployment.yaml
   - web-deployment.yaml
+  - ingress.yaml

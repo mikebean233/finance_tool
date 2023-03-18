@@ -16,12 +16,7 @@ spec:
     spec:
       containers:
         - name: finance-tool-web
-          image: finance-tool-web:0.0.2-SNAPSHOT
-          ports:
-            - name: httpport
-              containerPort: 80
-
----
+          image: finance-tool-web:0.0.5-SNAPSHOT
 apiVersion: v1
 kind: Service
 metadata:
@@ -35,4 +30,3 @@ spec:
     - name: httpport
       port: 80
       targetPort: 80
-      nodePort: 32700

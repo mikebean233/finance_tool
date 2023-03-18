@@ -109,3 +109,8 @@
   font-size: 2rem;
   text-align: center;
 }
+
+.CategoriesTable {
+  width: 50%;
+  margin: auto;
+}

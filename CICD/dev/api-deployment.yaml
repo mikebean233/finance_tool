@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: finance-tool-api
-          image: finance-tool:0.0.2-SNAPSHOT
+          image: finance-tool:0.0.5-SNAPSHOT
           resources:
             limits:
               memory: "1Gi"
@@ -51,6 +51,5 @@ spec:
   type: NodePort
   ports:
     - name: httpport
-      port: 8080
+      port: 80
       targetPort: 8080
-      nodePort: 31000
