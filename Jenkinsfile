@@ -2,6 +2,7 @@ pipeline {
   agent {
     kubernetes {
       yamlFile 'agent-pod.yaml'
+
     }
   }
   options { checkoutToSubdirectory('checkout') }
@@ -68,13 +69,13 @@ pipeline {
 		  // GRAFANA
 		  stage('grafana build / publish') {
 		    stages {
-			  stage('docker image build (grafana)') {
-			    steps {
-				  container('docker') {
-				    dir("checkout/grafana") {
-					  script {
-					    docker.build 'finance-tool-grafana:0.0.5-SNAPSHOT'
-					  }
+			    stage('docker image build (grafana)') {
+			      steps {
+				    container('docker') {
+				      dir("checkout/grafana") {
+					      script {
+					      docker.build 'finance-tool-grafana:0.0.5-SNAPSHOT'
+					    }
 				    }
 				  }
 			    }
@@ -96,5 +97,4 @@ pipeline {
       }
     }
   }
-
 }
