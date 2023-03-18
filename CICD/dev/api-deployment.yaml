@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: finance-tool-api
-          image: finance-tool:0.0.5-SNAPSHOT
+          image: finance-tool:0.0.6-SNAPSHOT
           resources:
             limits:
               memory: "1Gi"
