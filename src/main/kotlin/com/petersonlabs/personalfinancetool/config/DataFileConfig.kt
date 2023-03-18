@@ -8,5 +8,6 @@ import org.springframework.context.annotation.Configuration
 @ConfigurationProperties("finance-tool.data-file-config")
 @EnableConfigurationProperties(DataFileConfig::class)
 data class DataFileConfig(
-    var root: String = ""
+    var root: String = "",
+    var enableInit: Boolean = true
 )

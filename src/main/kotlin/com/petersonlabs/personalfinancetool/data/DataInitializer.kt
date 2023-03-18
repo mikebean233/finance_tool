@@ -21,10 +21,13 @@ class DataInitializer(
     val transactionController: TransactionController
 ) {
     private val csvFileRoot = dataFileConfig.root
+    private val enableInit = dataFileConfig.enableInit
 
     @PostConstruct
     fun postConstruct() {
-        initializeData()
+        if (enableInit) {
+            initializeData()
+        }
     }
 
     fun initializeCategories(categoryIS: InputStream) {
