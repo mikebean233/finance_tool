@@ -17,6 +17,7 @@ spec:
       containers:
         - name: finance-tool-web
           image: finance-tool-web:0.0.5-SNAPSHOT
+---
 apiVersion: v1
 kind: Service
 metadata:
