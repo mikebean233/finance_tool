@@ -223,3 +223,23 @@ class CategoryResource(
     fun getCategorySchema() =
         getSchema(Category::class.java)
 }
+
+@RestController
+@RequestMapping("state")
+class StateResource(
+    val dataInitializer: DataInitializer
+) {
+    @GetMapping("/initialize")
+    @Tag(name = "State")
+    fun initialize(@RequestParam("initializeTransactions", defaultValue = "false") initializeTransactions: Boolean): String? {
+        dataInitializer.initializeData(initializeTransactions)
+        return "OK"
+    }
+
+    @GetMapping("/backup")
+    @Tag(name = "State")
+    fun initialize(): String? {
+        dataInitializer.backupData()
+        return "OK"
+    }
+}
