@@ -1,7 +1,7 @@
 {
   "name": "finance-tool-web",
   "homepage": "/web/",
-  "version": "0.0.5-SNAPSHOT",
+  "version": "0.0.6-SNAPSHOT",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.6",

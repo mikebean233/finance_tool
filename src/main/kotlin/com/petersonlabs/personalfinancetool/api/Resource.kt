@@ -47,13 +47,6 @@ class TransactionResource(
         !it.description.contains("payment to credit card", true) && !it.description.contains("payment thank you", true)
     }
 
-    @GetMapping("/initialize")
-    @Tag(name = "Transaction")
-    fun initialize(@RequestParam("initializeTransactions", defaultValue = "false") initializeTransactions: Boolean): String? {
-        dataInitializer.initializeData(initializeTransactions)
-        return "OK"
-    }
-
     @PostMapping("/uploadCSV", consumes = [MULTIPART_FORM_DATA_VALUE])
     @Tag(name = "Transaction")
     fun handleFileUpload(@RequestParam("file") file: MultipartFile): String? {
@@ -222,4 +215,24 @@ class CategoryResource(
     @GetMapping("/schema", produces = [APPLICATION_JSON_VALUE])
     fun getCategorySchema() =
         getSchema(Category::class.java)
+}
+
+@RestController
+@RequestMapping("state")
+class StateResource(
+    val dataInitializer: DataInitializer
+) {
+    @GetMapping("/initialize")
+    @Tag(name = "State")
+    fun initialize(@RequestParam("initializeTransactions", defaultValue = "false") initializeTransactions: Boolean): String? {
+        dataInitializer.initializeData(initializeTransactions)
+        return "OK"
+    }
+
+    @GetMapping("/backup")
+    @Tag(name = "State")
+    fun initialize(): String? {
+        dataInitializer.backupData()
+        return "OK"
+    }
 }
