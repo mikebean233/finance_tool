@@ -47,13 +47,6 @@ class TransactionResource(
         !it.description.contains("payment to credit card", true) && !it.description.contains("payment thank you", true)
     }
 
-    @GetMapping("/initialize")
-    @Tag(name = "Transaction")
-    fun initialize(@RequestParam("initializeTransactions", defaultValue = "false") initializeTransactions: Boolean): String? {
-        dataInitializer.initializeData(initializeTransactions)
-        return "OK"
-    }
-
     @PostMapping("/uploadCSV", consumes = [MULTIPART_FORM_DATA_VALUE])
     @Tag(name = "Transaction")
     fun handleFileUpload(@RequestParam("file") file: MultipartFile): String? {
