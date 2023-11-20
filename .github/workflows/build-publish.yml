@@ -5,9 +5,9 @@ jobs:
   gradle-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Gradle Build Setup
-        uses: gradle/gradle-build-action@v2
-
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+      - uses: gradle/gradle-build-action@v2
       - name: Gradle Build
         run: |
           ./gradlew build -i --build-cache --no-daemon
