@@ -1,4 +1,5 @@
 name: Build and Publish
+on: push
 
 jobs:
   gradle-build:
