@@ -5,8 +5,10 @@ jobs:
   gradle-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Gradle Build
+      - name: Gradle Build Setup
         uses: gradle/gradle-build-action@v2
+
+      - name: Gradle Build
         run: |
           ./gradlew build -i --build-cache --no-daemon
           sh 'ls ./build/libs -All'
