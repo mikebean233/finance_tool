@@ -12,11 +12,13 @@ jobs:
 
   docker-build:
     runs-on: docker:cli
+    steps:
       - name: Docker Build
         run: docker build 'finance-tool:0.0.6-SNAPSHOT'
 
   publish:
     runs-on: ubuntu:latest
+    steps:
       - name: Publish
         uses: actions/upload-artifact@v2
         with:
