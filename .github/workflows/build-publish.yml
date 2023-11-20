@@ -3,7 +3,7 @@ on: push
 
 jobs:
   gradle-build:
-    runs-on: gradle:jdk17
+    runs-on: ubuntu-latest
     steps:
       - name: Gradle Build
         run: |
@@ -12,13 +12,13 @@ jobs:
           sh 'rm ./build/libs/*plain.jar'
 
   docker-build:
-    runs-on: docker:cli
+    runs-on: ubuntu-latest
     steps:
       - name: Docker Build
         run: docker build 'finance-tool:0.0.6-SNAPSHOT'
 
   publish:
-    runs-on: ubuntu:latest
+    runs-on: ubuntu-latest
     steps:
       - name: Publish
         uses: actions/upload-artifact@v2
